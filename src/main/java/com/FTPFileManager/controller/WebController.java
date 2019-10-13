@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 
-import javax.jws.WebParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -44,11 +43,14 @@ public class WebController {
     }
 
     @PostMapping("/addFile")
-    String saveTxt(@RequestParam("text") String text,
-                   @RequestParam("name") String name,
-                   @RequestParam("path") String path){
+    ModelAndView saveTxt(@RequestParam("text") String text,
+                         @RequestParam("name") String name,
+                        @RequestParam("path") String path){
         service.createTxt(name, path, text);
-        return "/list";
+        ModelMap m = new ModelMap();
+        m.addAttribute("nextFolder", path.substring(0, path.lastIndexOf("/")));
+
+        return new ModelAndView("redirect:/list", m);
 
     }
 
@@ -64,11 +66,13 @@ public class WebController {
     ModelAndView editFile(@RequestParam("text") String text,
                           @RequestParam("name") String name,
                           @RequestParam("path") String path){
-        if (path.endsWith(name + ".txt")) path = path.substring(0, path.lastIndexOf("/"));
+        if (new File(path).exists()) service.deleteFileByPath(path);
+        path = path.substring(0, path.lastIndexOf("/"));
         service.createTxt(name, path, text);
-        ModelAndView modelAndView = new ModelAndView("/list");
-        modelAndView.addObject("nextFolder", path);
-        return modelAndView;
+        ModelMap m = new ModelMap();
+        m.addAttribute("nextFolder", path.substring(0, path.lastIndexOf("/")));
+
+        return new ModelAndView("redirect:/list", m);
     }
 
     @GetMapping("/list/seeNote")
@@ -91,7 +95,8 @@ public class WebController {
         noteService.create(path, message, new Date(System.currentTimeMillis()));
         ModelMap m = new ModelMap();
         m.addAttribute("nextFolder", path.substring(0, path.lastIndexOf("/")));
-        return new ModelAndView("redirect:/list", m);
+
+        return new ModelAndView("redirect:/list", m).addObject("note", noteService.find(path));
     }
 
 
@@ -133,9 +138,9 @@ public class WebController {
     }
 
 
+
     @RequestMapping(value="/list/upload", method=RequestMethod.POST)
-    public ModelAndView uploadFile(@RequestParam("note") String note,
-                                   @RequestParam("file") MultipartFile file,
+    public ModelAndView uploadFile(@RequestParam("file") MultipartFile file,
                                    @RequestParam(value = "nextFolder") String path,
                                    ModelMap model){
         if (path == null || path.length() < globalProperties.getRootDirectory().length()){
@@ -146,7 +151,6 @@ public class WebController {
             return new ModelAndView("redirect:/list", model);
         }
         if (service.uploadFile(file, path)){
-            noteService.create(path+"/" + file.getOriginalFilename(), note, new Date(System.currentTimeMillis()));
             model.addAttribute("nextFolder", path);
             return new ModelAndView("redirect:/list", model);
         }

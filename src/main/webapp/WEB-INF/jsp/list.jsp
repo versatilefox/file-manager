@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page language="java" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title></title>
@@ -36,7 +37,6 @@
 <form method="POST" enctype="multipart/form-data"
       action="/list/upload">
     File to upload: <input type="file" name="file">
-    Note: <input type="text" name="note">
     <input type="hidden" name="nextFolder" value="<%=request.getParameter("nextFolder")%>">
     <input type="submit" value="Upload">
 </form>
@@ -55,7 +55,7 @@
                 <c:choose>
                     <c:when test="${file.isFile() == true}">
                         <img src="${document}">
-                        <a href="/list/download?nextFolder=${file.getAbsolutePath()}">${file.getName()}</a>
+                        <a href="/list/seeFile?nextFolder=${file.getAbsolutePath()}">${file.getName()}</a>
                     </c:when>
                     <c:otherwise>
                         <img src="${folder}">
