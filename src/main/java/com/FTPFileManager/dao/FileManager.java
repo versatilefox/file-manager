@@ -60,8 +60,11 @@ public class FileManager implements Manager {
 
     @Override
     public void deleteFileByPath(String pathTo) {
-        File file = new File(pathTo);
-        final boolean delete = file.delete();
+        try {
+            Files.delete(Paths.get(pathTo));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

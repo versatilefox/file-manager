@@ -48,7 +48,7 @@ public class WebController {
                         @RequestParam("path") String path){
         service.createTxt(name, path, text);
         ModelMap m = new ModelMap();
-        m.addAttribute("nextFolder", path.substring(0, path.lastIndexOf("/")));
+        m.addAttribute("nextFolder", path);
 
         return new ModelAndView("redirect:/list", m);
 
@@ -70,7 +70,7 @@ public class WebController {
         path = path.substring(0, path.lastIndexOf("/"));
         service.createTxt(name, path, text);
         ModelMap m = new ModelMap();
-        m.addAttribute("nextFolder", path.substring(0, path.lastIndexOf("/")));
+        m.addAttribute("nextFolder", path);
 
         return new ModelAndView("redirect:/list", m);
     }
@@ -118,24 +118,32 @@ public class WebController {
     public void downloadPDFResource(HttpServletRequest request, HttpServletResponse response,
                                     @RequestParam("nextFolder") String path) throws IOException {
 
-        File file = new File(path);
+        File file = service.getFileByPath(path);
         if (file.exists()) {
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
             if (mimeType == null) {
-
                 mimeType = "application/octet-stream";
             }
-
             response.setContentType(mimeType);
-
-            response.setHeader("Content-Disposition", String.format("inline; filename=\"" + file.getName() + "\""));
+            response.setHeader("Content-Disposition", String.format("attachment; filename=\"" + file.getName() + "\""));
             response.setContentLength((int) file.length());
             InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-
             FileCopyUtils.copy(inputStream, response.getOutputStream());
-
         }
     }
+
+    @GetMapping("/list/seeFile")
+    public void seeFile(HttpServletRequest request, HttpServletResponse response,
+                                    @RequestParam("nextFolder") String path) throws IOException {
+        File file = service.getFileByPath(path);
+        if (file.exists()) {
+            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+            response.setHeader("Content-Disposition", String.format("inline; filename=\"" + file.getName() + "\""));
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+            FileCopyUtils.copy(inputStream, response.getOutputStream());
+        }
+    }
+
 
 
 
@@ -159,15 +167,13 @@ public class WebController {
     }
 
     @RequestMapping(value = "list/addFolder", method = RequestMethod.GET)
-    public ModelAndView addFolder(@RequestParam(value = "note") String note,
-                                  @RequestParam(value = "nextFolder") String path,
+    public ModelAndView addFolder(@RequestParam(value = "nextFolder") String path,
                                   @RequestParam(value = "name") String name,
                                   ModelMap model){
         if (path == null || path.length() < globalProperties.getRootDirectory().length()){
             path = globalProperties.getRootDirectory();
         }
         service.createDirectory(path, name);
-        noteService.create(path+"/" + name, note, new Date(System.currentTimeMillis()));
         model.addAttribute("nextFolder", path+"/" + name);
         return new ModelAndView("redirect:/list", model);
     }

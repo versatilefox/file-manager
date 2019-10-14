@@ -29,8 +29,6 @@
 <form action="/list/addFolder" method="get">
     <label for="name">Name</label>
     <input type="text" name="name" id="name">
-    <label for="note">Note</label>
-    <input type="text" name="note" id="note">
     <input type="hidden" name="nextFolder" value="<%=request.getParameter("nextFolder")%>">
     <input type="submit" value="Add folder">
 </form>

@@ -10,12 +10,12 @@
         <c:when test="${emptyNote == true}">
             Message <input type="text" name="message">
             <input type="hidden" name="nextFolder" value="<%=request.getParameter("nextFolder")%>">
-            <input type="submit" value="Add note">
+            <input type="submit" value="Add">
         </c:when>
         <c:otherwise>
             Message <input type="text" name="message" value="${note.message}">
             <input type="hidden" name="nextFolder" value="${note.path}">
-            <input type="submit" value="edit note">
+            <input type="submit" value="edit">
         </c:otherwise>
     </c:choose>
 </form>
