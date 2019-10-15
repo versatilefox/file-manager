@@ -5,6 +5,8 @@ import com.FTPFileManager.model.Note;
 import com.FTPFileManager.service.NoteService;
 import com.FTPFileManager.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
@@ -20,7 +22,8 @@ import java.net.URLConnection;
 import java.util.*;
 
 @Controller
-public class WebController {
+public class WebController implements MessageSourceAware {
+    private MessageSource messageSource;
 
     @Autowired
     Service service;
@@ -62,6 +65,11 @@ public class WebController {
         return modelAndView;
     }
 
+    @GetMapping("/index")
+    ModelAndView editTx(){
+        return new ModelAndView("index");
+    }
+
     @PostMapping("/editTxt")
     ModelAndView editFile(@RequestParam("text") String text,
                           @RequestParam("name") String name,
@@ -100,20 +108,6 @@ public class WebController {
     }
 
 
-    @GetMapping("/index")
-    ModelAndView getin(@RequestParam(value = "nextFolder", required = false) String path){
-        ModelAndView modelAndView = new ModelAndView("index");
-        Map<String, String> map = new HashMap<>();
-        for (File f : service.getAll(path)) {
-            map.put(f.getName(), f.getPath());
-        }
-        List<File> list = service.getAll(path);
-        modelAndView.addObject("files", list);
-        modelAndView.addObject("isFile", list);
-        return modelAndView;
-
-    }
-
     @GetMapping("/list/download")
     public void downloadPDFResource(HttpServletRequest request, HttpServletResponse response,
                                     @RequestParam("nextFolder") String path) throws IOException {
@@ -139,6 +133,7 @@ public class WebController {
         if (file.exists()) {
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
             response.setHeader("Content-Disposition", String.format("inline; filename=\"" + file.getName() + "\""));
+            response.setContentType("text/html; charset=UTF-8");
             InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
             FileCopyUtils.copy(inputStream, response.getOutputStream());
         }
@@ -179,6 +174,7 @@ public class WebController {
     }
 
 
+
     @GetMapping("/list/delete")
     ModelAndView deleteDirectory(@RequestParam(value = "deleted", required = true) String path, ModelMap model) throws IOException {
         service.deleteFileByPath(path);
@@ -203,9 +199,8 @@ public class WebController {
     }
 
 
-
-
-
-
-
+    @Override
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
 }

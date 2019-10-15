@@ -22,27 +22,23 @@ public class GlobalProperties {
     @NotNull
     private String directoryImage;
 
+    @Value("${defaultLocale}")
+    @NotNull
+    private String defaultLocale;
+
     public String getRootDirectory() {
         return rootDirectory;
-    }
-
-    public void setRootDirectory(String rootDirectory) {
-        this.rootDirectory = rootDirectory;
     }
 
     public String getDocumentImage() {
         return documentImage;
     }
 
-    public void setDocumentImage(String documentImage) {
-        this.documentImage = documentImage;
-    }
-
     public String getDirectoryImage() {
         return directoryImage;
     }
 
-    public void setDirectoryImage(String directoryImage) {
-        this.directoryImage = directoryImage;
+    public String getDefaultLocale() {
+        return defaultLocale;
     }
 }

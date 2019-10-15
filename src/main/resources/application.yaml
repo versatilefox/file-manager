@@ -1,3 +1,4 @@
 rootDirectory: /Users/
 documentImage: /images/document.jpg
 directoryImage: /images/folder.jpg
+defaultLocale: ru
